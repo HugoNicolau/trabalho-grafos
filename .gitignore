@@ -1,0 +1,25 @@
+# Arquivos compilados
+*.o
+*.out
+*.exe
+bin/
+obj/
+
+# Arquivos de saída
+output/*.txt
+output/*.sol
+results/*.csv
+
+# Arquivos temporários
+*.tmp
+*.swp
+*~
+.DS_Store
+
+# IDEs
+.vscode/
+.idea/
+*.code-workspace
+
+# Arquivos de sistema
+Thumbs.db
