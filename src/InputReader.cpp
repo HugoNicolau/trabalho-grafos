@@ -2,6 +2,39 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <climits>
+
+//todo: verificação de edges para normalização se 0-based ou 1-based
+bool normalizeEdges(
+    std::vector<std::pair<int, int>> &edges,
+    int numVertices
+) {
+    int minV = INT_MAX;
+    int maxV = INT_MIN;
+
+    for (auto &[u, v] : edges) {
+        minV = std::min(minV, std::min(u, v));
+        maxV = std::max(maxV, std::max(u, v));
+    }
+
+    // Caso 1: 0-based
+    if (minV == 0 && maxV == numVertices - 1) {
+        return true;
+    }
+
+    // Caso 2: 1-based
+    if (minV == 1 && maxV == numVertices) {
+        for (auto &[u, v] : edges) {
+            u--;
+            v--;
+        }
+        return true;
+    }
+
+    // Caso inválido
+    std::cerr << "Erro: índices de vértices fora do padrão esperado\n";
+    return false;
+}
 
 bool InputReader::readGraph(const std::string &filename, Graph &graph)
 {

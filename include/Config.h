@@ -30,6 +30,12 @@ namespace Config
     const std::string ALGORITHM_GREEDY = "greedy";
     const std::string ALGORITHM_GRASP = "grasp";
     const std::string ALGORITHM_REACTIVE = "reactive";
+
+    // Parâmetros padrão para GRASP reativo
+    constexpr int DEFAULT_BLOCK_SIZE = 30;
+    constexpr int DEFAULT_REACTIVE_ITERATIONS = 300;
+    const std::vector<double> DEFAULT_REACTIVE_ALPHAS = {0.1, 0.3, 0.5};
+
 }
 
 #endif

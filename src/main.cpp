@@ -2,6 +2,7 @@
 #include "InputReader.h"
 #include "OutputWriter.h"
 #include "ResultLogger.h"
+#include "GreedyAlgorithm.h"
 #include "Config.h"
 #include <iostream>
 #include <chrono>
@@ -164,12 +165,19 @@ int main(int argc, char *argv[])
 
     auto startTime = std::chrono::high_resolution_clock::now();
 
-    std::cout << "\n[INFO] Executando coloração de exemplo..." << std::endl;
-    std::cout << "[AVISO] Os algoritmos guloso, GRASP e GRASP reativo ainda não foram implementados." << std::endl;
-    std::cout << "[AVISO] Usando coloração trivial apenas para demonstrar o sistema de I/O.\n"
-              << std::endl;
+    std::vector<int> coloring;
 
-    std::vector<int> coloring = exampleColoring(graph, p, q);
+    if (algorithm == Config::ALGORITHM_GREEDY)
+    {
+        std::cout << "[INFO] Executando algoritmo guloso (greedy)..." << std::endl;
+        GreedyAlgorithm greedy(graph, p, q);
+        coloring = greedy.solve();
+    }
+    else
+    {
+        std::cout << "[AVISO] Algoritmo solicitado não implementado; usando coloração de exemplo." << std::endl;
+        coloring = exampleColoring(graph, p, q);
+    }
 
     auto endTime = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed = endTime - startTime;
