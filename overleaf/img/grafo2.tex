@@ -1,0 +1,141 @@
+\begin{tikzpicture}
+%============================================================
+%  Essa seção define o estilo dos nós e arestas  
+%  Necessário apenas para desenhar um grafo se quiserem
+%============================================================
+\tikzset{ % Importante:
+          % Linha em branco nessa seção dá erro de compilação!
+    % ESTILOS DOS GRAFOS
+    % ---  Define arestas ------
+    >=stealth,
+    aresta/.style={ %
+            -,     % sem terminação na aresta
+            thick, % linha grossa
+            gray   % cor da aresta 
+        },
+    arco/.style={  % 
+            ->,    % com seta no final da aresta
+            thick, % linha grossa
+            gray   % cor da aresta 
+        },
+    outraAresta/.style={ -, %
+            thin,  % linha fina
+            dashed,% tracejada (dotted para pontilhada)
+            gray   % cor da aresta 
+        },
+    % ---  Define vertices ------
+    vertice/.style={   %
+            circle,    % formato circular
+            semithick, % linha "meio" grossa
+            draw=black,% linha na cor preta
+            inner sep=2pt % margem interna
+        },
+    verticeRetangular/.style={ %
+            rectangle, % formato retangular
+            very thick, % linha muito grossa
+            draw=black  % linha na cor preta 
+        },
+    bolinha/.style={   %
+            circle,    % formato circular
+            semithin,  % linha "meio" fina
+            draw=black,% linha na cor preta,
+            inner sep=1.5pt % margem interna
+        },
+    texto/.style={      %
+            draw=white, % contorno em branco 
+            font=\footnotesize %texto em letra pequena
+        },
+    % --- SOBRE CORES ------
+    % Existem algumas cores padrão: blue, yellow, teal, 
+    %     purple, red, violet, white, gray, lightgray...
+    % As cores originais (principalmente blue, red, green)
+    % são muito vivas, mas podem ser "diluidas": 
+    %   blue!30         => 30% de azul com 70% de branco
+    %   blue!80!black   => 80% de azul com 20% de preto
+    corVermelho/.style={right color=red!60,
+                        left color=red!5,
+                        draw=red!60},
+    corAzul/.style={right color=cyan!80!black,
+                    left color=cyan!5,
+                    draw=cyan!80!black},
+    corRosa/.style={right color=pink,
+                    left color=pink!5,
+                    draw=pink},
+    corVinho/.style={right color=purple!60,
+                    left color=purple!5,
+                    draw=purple!60},
+    corLaranja/.style={right color=orange!80,
+                    left color=orange!5,
+                    draw=orange!80},
+    corVerde/.style={right color=teal!80,
+                    left color=teal!5,
+                    draw=teal!80},
+}
+
+% define deslocamento padrao para as bolinhas
+\def\deslocaX{0.2}
+\def\deslocaY{0.4}
+
+% % define nome para cores que serão usadas ao longo da figura
+% \def\corVermelho{red!40,left color=white,draw=red!60}
+% \def\corAzul{cyan!30,left color=white,draw=cyan!50}
+% \def\corRosa{pink!40,left color=white,draw=pink!60}
+% \def\corVinho{purple!40,left color=white,draw=purple!60}
+% \def\corLaranja{orange!50,left color=white,draw=orange!70}
+% \def\corVerde{teal!40,left color=white,draw=teal!60}
+
+   % insere um nó com o estilo "vertice" (definido nas linhas 6 a 40 do arquivo)
+   %    que será referenciado por v1 na posicao (x,y) do plano cartesiano indicada 
+   %    com o texto interno vazio ocupando o espaço que seria ocupado por "1"
+   \node[vertice,corVermelho] (v1) at (0.6,0.2) {\footnotesize \phantom{1}};
+   \node[bolinha,corVermelho] (v1a) at (0.6-\deslocaX,0.2-\deslocaY) {};
+   \node[bolinha,corRosa] (v1b) at (0.6,0.2-\deslocaY) {};
+   \node[bolinha,corVerde] (v1c) at (0.6+\deslocaX,0.2-\deslocaY) {};
+   
+   \node[vertice,corVinho] (v2) at (-0.5,1) {\footnotesize \phantom{2}};
+   \node[bolinha,corVinho] (v2a) at (-0.5-\deslocaX,1-\deslocaY) {};
+   \node[bolinha,corLaranja] (v2b) at (-0.5,1-\deslocaY) {};
+   \node[bolinha,corVerde] (v2c) at (-0.5+\deslocaX,1-\deslocaY) {};
+   
+   \node[vertice,corLaranja] (v3) at (1,2.1) {\footnotesize \phantom{3}};
+   \node[bolinha,corAzul] (v3a) at (1.1,2.1-\deslocaY) {};
+   \node[bolinha,corLaranja] (v3b) at (1.1+\deslocaX,2.1-\deslocaY) {};
+   
+   \node[vertice,corAzul] (v4) at (2.8,1.9) {\footnotesize \phantom{4}};
+   \node[bolinha,corRosa] (v4a) at (2.8-\deslocaX,1.9-\deslocaY) {};
+   \node[bolinha,corAzul]   (v4b) at (2.8,1.9-\deslocaY) {};
+   \node[bolinha,corVerde] (v4c) at (2.8+\deslocaX,1.9-\deslocaY) {};
+   
+   \node[vertice,corVerde] (v5) at (3.8,1) {\footnotesize \phantom{5}};
+   \node[bolinha,corVerde] (v5b) at (3.8,1-\deslocaY) {};
+   \node[bolinha,corLaranja] (v5c) at (3.8+\deslocaX,1-\deslocaY) {};
+   
+   \node[vertice,corRosa] (v6) at (3,0.2) {\footnotesize \phantom{6}};
+   \node[bolinha,corRosa] (v6a) at (3-\deslocaX,0.2-\deslocaY) {};
+   \node[bolinha,corAzul] (v6b) at (3,0.2-\deslocaY) {};
+   \node[bolinha,corVerde] (v6c) at (3+\deslocaX,0.2-\deslocaY) {};
+   \node[bolinha,corVermelho] (v6d) at (3+\deslocaX+\deslocaX,0.2-\deslocaY) {};
+   
+   \node[vertice,corVerde] (v7) at (2,1) {\footnotesize \phantom{7}};
+   \node[bolinha,corAzul] (v7a) at (2,1-\deslocaY) {};
+   \node[bolinha,corVerde] (v7b) at (2+\deslocaX,1-\deslocaY) {};
+
+   
+   % insere uma aresta com o estilo "aresta" (definido nas linhas 6 a 40)
+   %    do nó v1 ao nó v2, com um nó intermediario contendo o texto "a"
+   %    Os termos below, above, right, left, near start, near end ajudam a 
+   %    posicionar o texto na aresta
+   \draw[arco] (v1) edge node[below left] {\footnotesize a} (v2);
+   \draw[arco] (v2) edge node[below left] {\footnotesize a} (v1);
+   \draw[arco] (v1) edge node[near end, left] {\footnotesize c} (v3);
+   \draw[arco] (v1) edge node[below] {\footnotesize d} (v6);
+   \draw[arco] (v1) edge node[near end, below] {\footnotesize e} (v7);
+   \draw[arco] (v2) edge node[above] {\footnotesize b} (v3);
+   \draw[arco] (v2) edge node[very near end, above] {\footnotesize f} (v7);
+   \draw[arco] (v3) edge node[above] {\footnotesize g} (v4);
+   \draw[arco] (v4) edge node[near end, above] {\footnotesize h} (v5);
+   \draw[outraAresta] (v4) edge node[near start, below] {\footnotesize i} (v7);
+   \draw[outraAresta] (v5) edge node[near start, below] {\footnotesize k} (v6);
+   \draw[outraAresta] (v6) edge node[near start, above] {\footnotesize j} (v7);
+    
+\end{tikzpicture}
