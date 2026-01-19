@@ -7,28 +7,46 @@ INSTANCES=(
   "instances/dimacs/r125.5.col"
 )
 
-ALGO="greedy"
+ALGOS=("greedy" "grasp")
 P=2
 Q=1
 RUNS=10
+GRASP_ALPHA=0.3
+GRASP_ITER=30
 
 for inst in "${INSTANCES[@]}"; do
   echo "Instância: $inst"
-  
-  for ((i=1; i<=RUNS; i++)); do
-    SEED=$RANDOM
-    echo "  Execução $i | seed=$SEED"
-    
-    ./bin/lpq_coloring \
-      -i "$inst" \
-      -a $ALGO \
-      -p $P \
-      -q $Q \
-      -s $SEED \
-      > /dev/null
-  done
 
+  for algo in "${ALGOS[@]}"; do
+    echo "  Algoritmo: $algo"
+
+    for ((i=1; i<=RUNS; i++)); do
+      SEED=$RANDOM
+      echo "    Execução $i (seed=$SEED)"
+
+      if [ "$algo" == "grasp" ]; then
+        ./bin/lpq_coloring \
+          -i "$inst" \
+          -a "$algo" \
+          -p $P \
+          -q $Q \
+          -s $SEED \
+          --alpha $GRASP_ALPHA \
+          --iter $GRASP_ITER \
+          > /dev/null
+      else
+        ./bin/lpq_coloring \
+          -i "$inst" \
+          -a "$algo" \
+          -p $P \
+          -q $Q \
+          -s $SEED \
+          > /dev/null
+      fi
+    done
+  done
   echo
 done
+
 
 echo "Experimentos concluídos."

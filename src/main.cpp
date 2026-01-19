@@ -3,6 +3,7 @@
 #include "OutputWriter.h"
 #include "ResultLogger.h"
 #include "GreedyAlgorithm.h"
+#include "GRASPAlgorithm.h"
 #include "Config.h"
 #include <iostream>
 #include <chrono>
@@ -175,6 +176,12 @@ int main(int argc, char *argv[])
         std::cout << "[INFO] Executando algoritmo guloso (greedy)..." << std::endl;
         GreedyAlgorithm greedy(graph, p, q);
         coloring = greedy.solve();
+    }
+    else if (algorithm == Config::ALGORITHM_GRASP)
+    {
+        std::cout << "[INFO] Executando GRASP (alpha=" << alpha << ", iter=" << iterations << ")..." << std::endl;
+        GRASPAlgorithm grasp(graph, p, q, alpha, iterations);
+        coloring = grasp.solve();
     }
     else
     {
