@@ -4,6 +4,7 @@
 #include "ResultLogger.h"
 #include "GreedyAlgorithm.h"
 #include "GRASPAlgorithm.h"
+#include "ReactiveGRASPAlgorithm.h"
 #include "Config.h"
 #include <iostream>
 #include <chrono>
@@ -87,10 +88,9 @@ int main(int argc, char *argv[])
     std::string algorithm = Config::ALGORITHM_GREEDY;
     double alpha = Config::DEFAULT_ALPHA;
     int iterations = Config::DEFAULT_ITERATIONS;
-    int blockSize = Config::DEFAULT_BLOCK_SIZE;
-    // int graspReactiveBlockSize = Config::DEFAULT_BLOCK_SIZE_GRASPR;
-    // int graspReactiveIterations = Config::DEFAULT_REACTIVE_ITERATIONS;
-    // std::vector<double> graspReactiveAlphas = Config::DEFAULT_REACTIVE_ALPHAS;
+    int blockSize = Config::DEFAULT_BLOCK_SIZE_GRASPR;
+    bool iterationsSet = false;
+    bool blockSizeSet = false;
 
     // Parse de argumentos da linha de comando
     for (int i = 1; i < argc; i++)
@@ -137,10 +137,24 @@ int main(int argc, char *argv[])
         else if (arg == "--iter" && i + 1 < argc)
         {
             iterations = std::atoi(argv[++i]);
+            iterationsSet = true;
         }
         else if (arg == "--block" && i + 1 < argc)
         {
             blockSize = std::atoi(argv[++i]);
+            blockSizeSet = true;
+        }
+    }
+
+    if (algorithm == Config::ALGORITHM_REACTIVE)
+    {
+        if (!iterationsSet)
+        {
+            iterations = Config::DEFAULT_REACTIVE_ITERATIONS;
+        }
+        if (!blockSizeSet)
+        {
+            blockSize = Config::DEFAULT_BLOCK_SIZE_GRASPR;
         }
     }
 
@@ -182,6 +196,24 @@ int main(int argc, char *argv[])
         std::cout << "[INFO] Executando GRASP (alpha=" << alpha << ", iter=" << iterations << ")..." << std::endl;
         GRASPAlgorithm grasp(graph, p, q, alpha, iterations);
         coloring = grasp.solve();
+    }
+    else if (algorithm == Config::ALGORITHM_REACTIVE)
+    {
+        std::cout << "[INFO] Executando GRASP reativo (alphas=";
+        for (size_t i = 0; i < Config::DEFAULT_REACTIVE_ALPHAS.size(); ++i)
+        {
+            std::cout << Config::DEFAULT_REACTIVE_ALPHAS[i];
+            if (i + 1 < Config::DEFAULT_REACTIVE_ALPHAS.size())
+                std::cout << ",";
+        }
+        std::cout << ", bloco=" << blockSize << ", iter=" << iterations << ")..." << std::endl;
+
+        ReactiveGRASPAlgorithm reactive(graph, p, q,
+                                         Config::DEFAULT_REACTIVE_ALPHAS,
+                                         blockSize,
+                                         iterations);
+        coloring = reactive.solve();
+        alpha = reactive.getBestAlphaUsed();
     }
     else
     {
