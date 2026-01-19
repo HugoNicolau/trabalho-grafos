@@ -9,6 +9,7 @@ obj/
 output/*.txt
 output/*.sol
 results/*.csv
+*.csv#
 
 # Arquivos temporários
 *.tmp

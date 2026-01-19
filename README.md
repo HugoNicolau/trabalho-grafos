@@ -20,3 +20,12 @@ make distclean
 # Ver ajuda
 ./bin/lpq_coloring --help
 ```
+## Como executar os experimentos
+# Compilar o projeto
+make
+
+# Tornar o script executável (caso necessário)
+chmod +x run_experiments.sh
+
+# Executar os experimentos
+./run_experiments.sh

@@ -87,6 +87,9 @@ int main(int argc, char *argv[])
     double alpha = Config::DEFAULT_ALPHA;
     int iterations = Config::DEFAULT_ITERATIONS;
     int blockSize = Config::DEFAULT_BLOCK_SIZE;
+    // int graspReactiveBlockSize = Config::DEFAULT_BLOCK_SIZE_GRASPR;
+    // int graspReactiveIterations = Config::DEFAULT_REACTIVE_ITERATIONS;
+    // std::vector<double> graspReactiveAlphas = Config::DEFAULT_REACTIVE_ALPHAS;
 
     // Parse de argumentos da linha de comando
     for (int i = 1; i < argc; i++)
