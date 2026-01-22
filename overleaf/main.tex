@@ -201,7 +201,9 @@ Ordene os vértices por grau em ordem decrescente: \( ordem \leftarrow \text{sor
 \Return{\( c \)}
 \end{algorithm}
 
-Pode ser interessante destacar as limitações do algoritmo proposto, destacando os cenários onde é mais difícil para o algoritmo obter boas soluções. 
+A abordagem de algoritmo guloso garante um velocidade muito grande, e também boa eficiência quando o grafo possui um estrutura hierárquica aparente, com vértices de maior grau e outros de menor grau, além da execução determinística. Porém, em grafos mais complexos, a minimização local realizada pelo algoritmo não implica em minimização global e pode colorir um vértice de uma cor de tal forma que prejudique a solução posteriormente à fase de busca local, característica chamada de miopia algorítmica; tal fato é atenuado em grafos esparsos. Para grafos regulares ou quase regulares, o algoritmo também perde eficiência pois a heurística não pode ser empregada, e os índices dos vértices são utilizados como critério de desempate, o que pode levar a colorações erráticas e aparentemente aleatórias. Por fim, o grafo não reconhece o caráter k-partido de alguns grafos, podendo fazer uma coloração ineficiente nesses casos.
+
+Portanto, o algoritmo guloso é recomendado como primeira abordagem para estabelecer um referencial de qualidade e tempo. É eficaz em grafos esparsos ou com estrutura hierárquica clara de graus. Entretanto, sua natureza determinística e miope limita sua capacidade em grafos densos ou quase regulares, onde decisões locais têm grandes impactos globais.
 
 
 \subsection{Algoritmo Guloso Randomizado}
@@ -265,6 +267,10 @@ O método empregado executa múltiplas iterações independentes da construção
 }
 \end{algorithm}
 
+A abordagem GRASP oferece grande vantagem sobre a abordagem gulosa determinística dado tempo suficiente, pois após algumas iterações, é possível obter soluções significantemente melhores do que o guloso puro, especialmente quando um valor ótimo de $\alpha$ é conhecido para o tipo de grafo em questão. Porém, essa dependência de $\alpha$ é a principal limitação do GRASP, visto que o desempenho pode variar drasticamente em alterações de $\alpha$, podendo performar pior do que um algoritmo guloso determinístico em alguns casos. Logo, a calibração manual do parâmetro também é uma desvantagem. Ainda, esta abordagem possui convergência lenta para grafos grandes, visto que a complexidade assintótica do algoritimo é $O(n^{2})$, tornando o tempo um proibitivo dessa abordagem. Porém, como as execuções do algoritmo são independentes, esse processo pode ser paralelizado. Ainda, o algoritimo guloso randomizado é efetivo quando é necessário descobrir um conjunto diverso de soluções.
+
+Em resumo, o GRASP oferece um equilíbrio entre qualidade da solução e recurso computacional quando o parâmetro $\alpha$ é adequadamente calibrado. É ideal para conjuntos homogêneos de instâncias onde pode-se determinar empiricamente um bom valor de $\alpha$. Sua principal limitação é a necessidade dessa calibração manual e a falta de aprendizado entre iterações.
+
 
 \subsection{Algoritmo Guloso Randomizado Reativo}
 \label{subSecAlgRandReact}
@@ -273,6 +279,12 @@ O método desenvolvido organiza a execução em blocos de iterações em que sel
 \begin{equation}
     AlphaReward = \frac{1}{maxColor};
 \end{equation} somada para o alpha que gerou a solução, assim cores máximas menores (melhores soluções) geram recompensas maiores. Ao final de cada bloco, as recompensas médias são calculadas (soma das recompensas dividida pelo número de usos) e redistribui-se as probabilidades proporcionalmente às recompensas, selecionando $\alpha$ mais efetivos.
+
+A abordagem ReactiveGRASP resolve o maior problema do GRASP tradicional, a calibração do parâmetro $\alpha$, ao implementar um aprendizado entre os blocos de iterações. Essa característica permite também que o algoritimo seja eficiente em um conjunto de instâncias bem distintas, descobrindo valores suficientemente bons de $\alpha$ durante a execução, o que é particularmente importante quando não se conhece um valor ideal para o conjunto dado, ou quando não há tempo ou incentivo para realizar experimentos para descobrí-lo. Quando é necessário computar muitas iterações sobre os grafos dados, o custo de atualizar as probabilidades de $\alpha$ são amortizados e compensados pelo aprendizado acumulado. Também é eficiente devido à adaptação durante a execução, como em grafos não-uniformes, com regiões mais densas e outras mais esparsas, ou quando uma exploração mais gulosa ($\alpha$ pequeno) é melhor no início para estabelecer uma boa estrutura base, mas uma exploração mais aleatória ($\alpha$ grande) ajuda posteriormente a superar mínimos locais e o caráter miope da abordagem gulosa.
+
+Porém, há grande custo computacional em executar vários blocos até achar valores relativamente bons de $\alpha$, e não se elimina a necessidade de calibração manual, visto que ainda é necessário escolher valores para os parâmetros, como os valores iniciais do conjunto de $\alpha$, e o tamanho dos blocos. Se um dos valores iniciais de $\alpha$ é "sortudo", sua probabilidade aumenta muito no começo da execução e pode ocorrer uma convergência prematura para este valor, mesmo que não seja o melhor valor a longo prazo; e o tamnho do bloco afeta diretamente essa convergência, visto que blocos menores atualizam mais rápido os parâmetros, mesmo se não houver informação suficiente, e blocos maiores ignoram boas soluções encontradas recentemente e tem adaptação demorada, atrasando a convergência. Sendo assim, para grafos pequenos, um algoritimo guloso determinístico ou um GRASP com boa escolha de $\alpha$ são suficientes e o overhead computacional do ReactiveGRASP não é justificado. Ademais, definir a função de recompensa adequada para as instâncias dadas também é uma tarefa problemática, pois o comportamento do algoritmo muda radicalmente para funções diferentes. Recompensas como $AlphaReward = \frac{1}{maxColor^{2}}$ premiam mais grandes melhorias e penalizam mais $\alpha$ considerados inadequados, por exemplo.
+
+Em resumo, o GRASP Reativo elimina a necessidade de calibração manual de $\alpha$, adaptando-se automaticamente a cada instância. É particularmente vantajoso para conjuntos heterogêneos de instâncias ou quando não se tem conhecimento prévio sobre qual configuração funciona melhor. O custo é um overhead computacional adicional considerável e a introdução de novos meta-parâmetros (conjunto de $\alpha$, tamanho de bloco).
 
 \begin{algorithm}[H]
 \caption{Algoritmo GRASP Reativo para L(p,q)-Coloring}
