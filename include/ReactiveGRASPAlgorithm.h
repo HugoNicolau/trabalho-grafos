@@ -16,6 +16,7 @@ public:
     std::vector<int> solve();
     double getBestAlphaUsed() const { return bestAlphaUsed; }
     double getAverageSolution() const { return averageSolution; }
+    int getBestMaxColor() const { return bestMaxColor; }
 
 private:
     const Graph &graph;

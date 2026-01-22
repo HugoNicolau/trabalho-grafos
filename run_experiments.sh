@@ -6,7 +6,7 @@ echo "========================================="
 
 INSTANCES=(
   "instances/dimacs/dsjc125.1.col"
-  "instances/dimacs/r125.9.col"
+  "instances/dimacs/dsjc125.9.col"
 )
 
 ALGOS=("greedy" "grasp" "reactive")

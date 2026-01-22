@@ -275,8 +275,8 @@ int main(int argc, char *argv[])
     double logAlpha = -1.0;
     int logIterations = 0;
     int logBlockSize = 0;
-    int logBestAlpha = -1.0;
-    int logAverageSolution = -1.0;
+    double logBestAlpha = -1.0;
+    double logAverageSolution = -1.0;
     if (algorithm == Config::ALGORITHM_GRASP)
     {
         logAlpha = alpha;

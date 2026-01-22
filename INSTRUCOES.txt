@@ -1,0 +1,93 @@
+================================================================================
+                    L(p,q)-Coloring Solver - Instruções de Uso
+================================================================================
+
+COMPILAÇÃO
+----------
+    make
+
+EXECUÇÃO BÁSICA
+---------------
+    ./bin/lpq_coloring -i <arquivo_instancia> [opções]
+
+PARÂMETROS DISPONÍVEIS
+----------------------
+    -i <arquivo>      Arquivo de entrada (instância do grafo) [OBRIGATÓRIO]
+    -o <arquivo>      Arquivo de saída para solução
+    -v <arquivo>      Arquivo de saída para visualização (formato csacademy)
+    -p <valor>        Parâmetro p do L(p,q)-coloring (padrão: 2)
+    -q <valor>        Parâmetro q do L(p,q)-coloring (padrão: 1)
+    -s <semente>      Semente de randomização (0 = automática baseada em timestamp)
+    -a <algoritmo>    Algoritmo: greedy | grasp | reactive (padrão: greedy)
+    --alpha <valor>   Valor de alpha para GRASP (0.0 a 1.0)
+    --iter <n>        Número de iterações para GRASP/Reativo
+    --block <n>       Tamanho do bloco para GRASP Reativo
+    -h, --help        Mostra ajuda
+
+================================================================================
+                              EXEMPLOS DE USO
+================================================================================
+
+1. ALGORITMO GULOSO (GREEDY)
+----------------------------
+    ./bin/lpq_coloring -i instances/dimacs/dsjc125.1.col -a greedy -p 2 -q 1
+
+    Parâmetros:
+    - Não possui parâmetros específicos além de p e q
+
+
+2. ALGORITMO GRASP (Guloso Randomizado)
+---------------------------------------
+    ./bin/lpq_coloring -i instances/dimacs/dsjc125.1.col -a grasp -p 2 -q 1 --alpha 0.3 --iter 30
+
+    Parâmetros:
+    - --alpha <valor>  : Controla a aleatoriedade (0.0 = guloso puro, 1.0 = totalmente aleatório)
+    - --iter <n>       : Número de iterações do algoritmo construtivo (mínimo recomendado: 30)
+
+
+3. ALGORITMO GRASP REATIVO
+--------------------------
+    ./bin/lpq_coloring -i instances/dimacs/dsjc125.1.col -a reactive -p 2 -q 1 --iter 300 --block 30
+
+    Parâmetros:
+    - --iter <n>       : Número total de iterações (mínimo recomendado: 300)
+    - --block <n>      : Tamanho do bloco para atualização de probabilidades (recomendado: 30-50)
+    - Os valores de alpha são ajustados automaticamente pelo algoritmo
+
+
+4. COM SEMENTE ESPECÍFICA (para reproduzir resultados)
+------------------------------------------------------
+    ./bin/lpq_coloring -i instances/dimacs/dsjc125.1.col -a grasp --alpha 0.3 --iter 30 -s 12345
+
+
+5. SALVANDO SOLUÇÃO E VISUALIZAÇÃO
+----------------------------------
+    ./bin/lpq_coloring -i instances/dimacs/dsjc125.1.col -a greedy -o output/solucao.txt -v output/visualizacao.txt
+
+    O arquivo de visualização pode ser colado em: http://csacademy.com/app/grapheditor/
+
+================================================================================
+                           EXECUTAR EXPERIMENTOS
+================================================================================
+
+    # Tornar o script executável (se necessário)
+    chmod +x run_experiments.sh
+
+    # Executar experimentos completos
+    ./run_experiments.sh
+
+    # Ou via make
+    make experiments
+
+    Os resultados são salvos em: results/resultados.csv
+
+================================================================================
+                              OUTROS COMANDOS
+================================================================================
+
+    make clean       # Limpar arquivos compilados
+    make distclean   # Limpar tudo (compilados + resultados)
+    make help        # Ver ajuda do programa
+    make test        # Executar teste rápido
+
+================================================================================
