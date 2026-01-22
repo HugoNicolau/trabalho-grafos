@@ -3,6 +3,7 @@
 \usepackage[brazil]{babel}
 \usepackage{graphicx}
 \usepackage{amsmath}
+\usepackage{amssymb}
 \usepackage{hyperref}
 \usepackage{caption}
 \usepackage{geometry}
@@ -37,9 +38,9 @@
 }
 \author{
     Deyvison Otaviano Fernandes - 201976016 \\
-    Nome do Aluno 2 - Matricula: \\
+    Hugo Ricardo Giles Nicolau - 202435003 \\
     Lucas Duan Rodrigues - 202576010 \\
-    Nome do Aluno 4 - Matricula: \\
+    Rafael Müller dos Santos Moreira - 202465557C \\
     Thaíse Silva Alves - 202435038 \\
 }
 \date{Janeiro de 2026}
@@ -62,9 +63,7 @@
 %                 I N T R O D U Ç Ã O
 %=======================================================
 \section{Introdução}
-O presente relatório tem como objetivo $\dots$. Considerou-se neste trabalho as características do problema  $\dots$. Foram desenvolvidos três algoritmos construtivos:  um algoritmo gulosos, um randomizados e um reativo, que foram avaliados sobre um conjunto de instâncias e os resultados foram comparados com os apresentados em citar.
-
-Note que nesta seção você deve dar uma visão geral do que consiste o trabalho, podendo destacar o contexto do mesmo no escopo da disciplina de Grafos, os objetivos e a motivação para o desenvolvimento do mesmo. O último parágrafo segue mais ou menos o modelo a seguir.
+O presente relatório tem como objetivo apresentar o desenvolvimento, a implementação e a análise experimental de algoritmos para o problema de coloração $L(p, q)$ em grafos. Considerou-se neste trabalho as características do problema onde a atribuição de cores (rótulos inteiros) aos vértices deve respeitar restrições de distância: vértices adjacentes precisam ter cores com diferença mínima $p$, enquanto vértices a distância 2 devem ter cores com diferença mínima $q$. No contexto da disciplina de Teoria dos Grafos, este projeto visa explorar a aplicação de meta-heurísticas em problemas de otimização combinatória NP-difíceis. A motivação reside na importância prática desse problema, frequentemente associado ao design de redes sem fio e à alocação de frequências, onde a interferência deve ser minimizada respeitando a proximidade geográfica dos dispositivos. Foram desenvolvidos três algoritmos construtivos: um algoritmo guloso (GreedyAlgorithm), um randomizado baseado em GRASP (GRASPAlgorithm) e um reativo (ReactiveGRASPAlgorithm), que foram avaliados sobre um conjunto de instâncias no formato DIMACS e os resultados foram comparados com os apresentados em trabalhos clássicos da literatura sobre o número de canal (span) para coloração de distância.
 
 O restante do trabalho está assim estruturado: na Seção \ref{secProblema} o problema é descrito formalmente através de um modelo em grafos; a Seção \ref{secAlgoritmos} descreve as abordagens propostas para o problema, enquanto a Seção \ref{secResultados} apresenta os experimentos computacionais, onde se descreve o design dos experimentos, o conjunto de instâncias (\textit{benchmarks}), bem como se apresenta a análise comparativa dos resultados dos algoritmos desenvolvidos e a literatura; por fim, a Seção \ref{secConclusoes} traz as conclusões do trabalho e propostas de trabalhos futuros.
 
@@ -75,41 +74,19 @@ O restante do trabalho está assim estruturado: na Seção \ref{secProblema} o p
 %=======================================================
 \section{Descrição do Problema}
 \label{secProblema}
+Dado um grafo não direcionado $G = (V, E)$, o problema da coloração $L(p, q)$ consiste em atribuir um rótulo (cor) inteiro não negativo $c(v)$ a cada vértice $v \in V$. O objetivo é minimizar a maior cor utilizada (o span da coloração), respeitando restrições de distância entre os vértices para evitar interferências.O problema pode ser formulado formalmente por:
 
-Dado um grafo \( G = (V, E) \), um conjunto \( D \subseteq V \) é um ... conforme descrito em \cite{tumuluru2014unit}.
+Função objetivo:\begin{equation}\min \lambda = \max_{v \in V} {c(v)} \label{func_obj_lpq}\end{equation}
 
-Nesta seção você deve descrever formalmente o problema modelado em grafos. Caso sejam usadas equações para isso, seguem alguns exemplos:
+Sujeito a:
 
-$\dots$ o problema  pode ser formulado por:
+\begin{equation}|c(u) - c(v)| \geq p, \quad \text{se } d(u, v) = 1 \label{restr_p}\end{equation}
 
-Função objetivo:
-\begin{eqnarray}
-min ~Z ~= \sum_{j=1}^{T} \sum_{i=1}^{H} C(Pot_{ij})\times x_{ij}   & & \label{func_obj}
-\end{eqnarray}
+\begin{equation}|c(u) - c(v)| \geq q, \quad \text{se } d(u, v) = 2 \label{restr_q}\end{equation}
 
-Onde o custo de produção é dado por:
-\begin{eqnarray}
-C(Pot_{ij}) = a\times (Pot_{ij})^2+b\times Pot_{ij}+c
-\end{eqnarray}
+\begin{equation}c(v) \in {0, 1, 2, \dots, \lambda}, \quad \forall v \in V \label{restr_cor}\end{equation}
 
-sujeito a:
-
-\begin{eqnarray}
-%Os limites de geração para a usina
-x_{ij} \times p_{i}  \leq ~~Pot_{ij} ~~\leq ~~ x_{ij} ~~\times ~~P_{i} ~~,  ~~\forall  i \in V=\{1,...,H\},~~\forall ~~ j\in W=\{1,...,T\} \label{restr_3}
-\end{eqnarray}
-%
-\begin{eqnarray}
-%Balanço de energia produzida
-\sum_{j=1}^{T} \sum_{i=1}^{H} (Pot_{ij}\times x_{ij}) - D_{j} = 0 , ~~ \forall  i\in V=\{1,...,H\},~~\forall  j\in W=\{1,...,T\}  \label{restr_4}
-\end{eqnarray}
-%Exigência de reserva do sistema
-\begin{eqnarray}
-\sum_{j=1}^{T} \sum_{i=1}^{H} (P_{ij}\times x_{ij}) \geq D_{j}+V_{j} ,  ~~\forall ~~ i\in V=\{1,...,H\},~~\forall ~~ j\in W=\{1,...,T\}  \label{restr_5}
-\end{eqnarray}
-
-
-A função objetivo (\ref{func_obj})   minimiza o custo total da geração de energia.  As restrições (\ref{restr_3}) se referem aos limites de geração da usina e limitarão qual o mínimo e o máximo que cada usina geradora $i$ pode alcançar.As restrições (\ref{restr_4}) garantem o balanceamento de energia produzida, pela qual a usina irá gerar energia de acordo com a demanda da mesma. As restrições (\ref{restr_5}) satisfazem as exigências de reserva do sistema, visando o armazenamento necessário para cada período. 
+A função objetivo (\ref{func_obj_lpq}) busca minimizar o valor $\lambda$, que representa a maior cor atribuída no grafo. A restrição (\ref{restr_p}) estabelece que vértices adjacentes (distância $d=1$) devem possuir cores com uma diferença absoluta de pelo menos $p$. A restrição (\ref{restr_q}) impõe que vértices separados por exatamente dois saltos (distância $d=2$) possuam cores com diferença absoluta de pelo menos $q$. Por fim, a restrição (\ref{restr_cor}) define o domínio das cores como números inteiros não negativos.
 
 \textbf{Observação:} estas equações são apenas um exemplo. Você não precisa descrever o problema na forma de Programação Matemática, mas é essencial que o problema seja descrito formalmente através de  modelagem em grafos.
 
@@ -176,18 +153,52 @@ Nesta seção são detalhados os algoritmos propostos para a obtenção de solu�
 \subsection{Algoritmo Guloso}
 \label{subSecAlgGuloso}
 
-Descrever o algoritmo guloso, colocando também o pseudocódigo. Vide exemplo no Algoritmo \ref{algGuloso}. Lembre-se de descrever o algoritmo apresentado, a numeração das linhas pode ajudar nesta explicação. Os algoritmos não são autoexplicativos, você precisa direcionar o leitor na leitura do pseudocódigo.
+
+O algoritmo guloso implementa uma heurística determinística baseada na ordenação dos vértices do grafo por grau em ordem decrescente. Assim, são processados primeiro os vértices com mais conexões. Essa escolha se baseia na observação de que vértices com mais vizinhos são mais difíceis de se atribuir uma cor e devem ser visitados primeiro, quando há mais flexibilidade na escolha de cores. O contrário ocorre com vértices de menor grau, nos quais há menos restrições para escolha de cores. Na execução do algoritmo, começamos com cor 1 e iteramos sobre os vizinhos, procurando vértices que invalidem a regra de coloração L(P,Q), incrementando a cor do vértice atual até que a condição seja respeitada para todos os vizinhos de distância 1, para diferenças de no máximo P, e vizinhos de distância 2, para diferenças de no máximo Q.
 
 \begin{algorithm}[H]
 \caption{Algoritmo Guloso}
 \label{algGuloso}
-\KwIn{Grafo \( G = (V, E) \)}
-\KwOut{Conjunto ...)}
+\KwIn{Grafo \( G = (V, E) \), parâmetros \( p, q \)}
+\KwOut{Coloração válida \( c: V \rightarrow \mathbb{Z}^+ \)}
 
-\While{$V_{restante} \neq \emptyset$}{
-    Exemplo de Algoritmo\\
+Inicialize \( c(v) \leftarrow 0 \) para todo \( v \in V \)\\
+Ordene os vértices por grau em ordem decrescente: \( ordem \leftarrow \text{sort}(V, \text{grau}) \)\\
+
+\For{vértices \( v \in ordem \)}{
+    \( cor \leftarrow 1 \)\\
+    \( coloracaoValida \leftarrow \text{falso} \)\\
+    
+    \While{\( \neg coloracaoValida \)}{
+        \( coloracaoValida \leftarrow \text{verdadeiro} \)\\
+        
+        \tcp{Verificação da restrição de P}
+        \For{vértice \( u \in N(v) \) com \( c(u) \neq 0 \)}{
+            \If{\( |cor - c(u)| < p \)}{
+                \( coloracaoValida \leftarrow \text{falso} \)\\
+                \textbf{break}\\
+            }
+        }
+        
+        \If{\( coloracaoValida \)}{
+            \tcp{Verificação da restrição de Q}
+            \For{vértice \( u \in N_2(v) \) com \( c(u) \neq 0 \)}{
+                \If{\( |cor - c(u)| < q \)}{
+                    \( coloracaoValida \leftarrow \text{falso} \)\\
+                    \textbf{break}\\
+                }
+            }
+        }
+        
+        \If{\( \neg coloracaoValida \)}{
+            \( cor \leftarrow cor + 1 \)\\
+        }
+    }
+    
+    \( c(v) \leftarrow cor \)\\
 }
-\Return{$D$}
+
+\Return{\( c \)}
 \end{algorithm}
 
 Pode ser interessante destacar as limitações do algoritmo proposto, destacando os cenários onde é mais difícil para o algoritmo obter boas soluções. 
@@ -196,12 +207,147 @@ Pode ser interessante destacar as limitações do algoritmo proposto, destacando
 \subsection{Algoritmo Guloso Randomizado}
 \label{subSecAlgRand}
 
-Descrever o algoritmo guloso randomizado, justificar a proposta do mesmo sobre as limitações da abordagem gulosa descrita na seção anterior e colocar também o pseudocódigo.
+O algoritmo guloso randomizado, baseado em GRASP (Greedy Randomized Adaptive Search Procedure), emprega uma metaheurística ao combinar algoritmos construtivos gulosos randomizados com busca local, introduzindo aleatoriedade na fase de construção de solução candidadata através de uma Lista Restrita de Candidatos (RCL). Para gerar esta lista, calcula-se a menor cor possível para cada vértice não colorido no grafo. Nesse conjunto de candidatos, o GRASP constrói a RCL utilizando o parâmetro $\alpha$, que controla a aleatoriedade: quando é 0, apenas candidatos com a menor cor possível entram na RCL (e consequentemente o algoritmo é guloso); quando é 1, todos os candidatos entram na RCL (algoritmo aleatório). A RCL inclui candidatos cuja cor cumpre o seguinte requisito: $$ cor <= c_{min} + \alpha * \\(c_{max} - c_{min}),$$ onde $c_{min}$ e $c_{max}$ são, respectivamente, a menor e maior cor entre todos os candidatos.
+O método empregado executa múltiplas iterações independentes da construção gulosa randomizada. Cada iteração pode produzir uma solução diferente devido à aleatoriedade na seleção da RCL. O algoritmo mantém a melhor solução encontrada ao longo de todas as iterações, onde "melhor" significa usar a menor cor máxima. O número mínimo de iterações é fixado em 30 (requisito da professora) para garantir exploração suficiente do espaço de soluções, apesar de aumentar significantemente o tempo de execução do GRASP em grafos grandes.
+
+
+\begin{algorithm}[H]
+\caption{Algoritmo GRASP para L(p,q)-Coloring}
+\label{algGRASP}
+\KwIn{Grafo \( G = (V, E) \), \( \alpha \in [0,1] \), parâmetros \( p, q \), número de iterações \( maxIter \)}
+\KwOut{Melhor coloração válida \( c^* \)}
+
+\( c^* \leftarrow \emptyset \)\\
+\( span^* \leftarrow \infty \)\\
+
+\For{\( iter \leftarrow 1 \) \KwTo \( maxIter \)}{
+    \( c \leftarrow \text{ConstruçãoGulosaRandomizada}(G, p, q, \alpha) \)\\
+    \( span \leftarrow \max_{v \in V} c(v) \)\\
+    
+    \If{\( span < span^* \)}{
+        \( c^* \leftarrow c \)\\
+        \( span^* \leftarrow span \)\\
+    }
+}
+
+\Return{\( c^* \)}
+
+\vspace{0.5cm}
+
+\SetKwProg{Fn}{Function}{:}{}
+\Fn{\text{ConstruçãoGulosaRandomizada}\( (G, p, q, \alpha) \)}{
+    Inicialize \( c(v) \leftarrow 0 \) para todo vértice \( v \in V \)\\
+    \( V_{coloridos} \leftarrow \emptyset \)\\
+    
+    \While{\( V_{coloridos} \neq V \)}{
+        \( candidatos \leftarrow \emptyset \)\\
+        
+        \tcp{Avaliação de cada vértice não colorido}
+        \For{vértice \( v \in V \setminus V_{coloridos} \)}{
+            \( cor_{min} \leftarrow \text{MenorCorVálida}(v, c, p, q) \)\\
+            \( candidatos \leftarrow candidatos \cup \{(v, cor_{min})\} \)\\
+        }
+        
+        \tcp{Construção da Lista Restrita de Candidatos (RCL)}
+        \( c_{min} \leftarrow \min_{(v,cor) \in candidatos} cor \)\\
+        \( c_{max} \leftarrow \max_{(v,cor) \in candidatos} cor \)\\
+        \( threshold \leftarrow c_{min} + \alpha \cdot (c_{max} - c_{min}) \)\\
+        
+        \( RCL \leftarrow \{(v, cor) \in candidatos : cor \leq threshold\} \)\\
+        
+        \tcp{Seleção aleatoriezada da RCL}
+        \( (v_{escolhido}, cor_{escolhida}) \leftarrow \text{random}(RCL) \)\\
+        \( c(v_{escolhido}) \leftarrow cor_{escolhida} \)\\
+        \( V_{coloridos} \leftarrow V_{coloridos} \cup \{v_{escolhido}\} \)\\
+    }
+    
+    \Return{\( c \)}
+}
+\end{algorithm}
 
 
 \subsection{Algoritmo Guloso Randomizado Reativo}
 \label{subSecAlgRandReact}
-Descrever o algoritmo guloso randomizado reativo, justificar a proposta do mesmo sobre as limitações da abordagem gulosa randomizada descrita na seção anterior e colocar também o pseudocódigo.
+O algoritmo guloso randomizado reativo, ou ReactiveGRASP, é uma adaptação do GRASP explicado anteriormente. A escolha do parâmetro $\alpha$ pode ser um pouco problemática, por isso emprega-se técnicas para avaliar a eficiência do algoritmo durante a execução, a fim de alterar o valor de $\alpha$ a cada bloco de iterações. O algoritmo trabalha com um conjunto de valores alpha candidatos e aprende qual funciona melhor para a instância específica.
+O método desenvolvido organiza a execução em blocos de iterações em que seleciona valores $\alpha$ de acordo com probabilidades que refletem seu desempenho passado. Para selecionar $\alpha$, gera-se um número aleatório entre 0 e 1 e percorre as probabilidades acumuladas até encontrar o $\alpha$ "sorteado". Maiores valores de $\alpha$ implicam em probabilidade maior de serem selecionados, mas todos mantêm devem ter chance não-nula, a fim de garantir exploração contínua. Após a construção de cada solução, calculamos um feedback baseada na qualidade da solução através da fórmula:
+\begin{equation}
+    AlphaReward = \frac{1}{maxColor};
+\end{equation} somada para o alpha que gerou a solução, assim cores máximas menores (melhores soluções) geram recompensas maiores. Ao final de cada bloco, as recompensas médias são calculadas (soma das recompensas dividida pelo número de usos) e redistribui-se as probabilidades proporcionalmente às recompensas, selecionando $\alpha$ mais efetivos.
+
+\begin{algorithm}[H]
+\caption{Algoritmo GRASP Reativo para L(p,q)-Coloring}
+\label{algGRASPReativo}
+\KwIn{Grafo \( G = (V, E) \), parâmetros \( p, q \), conjunto de alphas \( A = \{\alpha_1, \ldots, \alpha_m\} \), tamanho do bloco \( B \), iterações totais \( maxIter \)}
+\KwOut{Melhor coloração válida \( c^* \)}
+
+\( c^* \leftarrow \emptyset \)\\
+\( span^* \leftarrow \infty \)\\
+\( prob[\alpha_i] \leftarrow \frac{1}{m} \) para \( i = 1, \ldots, m \)\\
+\( recompensa[\alpha_i] \leftarrow 0 \) para \( i = 1, \ldots, m \)\\
+\( uso[\alpha_i] \leftarrow 0 \) para \( i = 1, \ldots, m \)\\
+
+\For{\( iter \leftarrow 1 \) \KwTo \( maxIter \)}{
+    \tcp{Atualize as probabilidades a cada bloco \(B)\)}
+    \If{\( iter > 1 \) \textbf{and} \( iter \bmod B = 1 \)}{
+        \For{\( i \leftarrow 1 \) \KwTo \( m \)}{
+            \If{\( uso[\alpha_i] > 0 \)}{
+                \( reward[\alpha_i] \leftarrow \frac{recompensa[\alpha_i]}{uso[\alpha_i]} \)\\
+            }
+            \Else{
+                \( reward[\alpha_i] \leftarrow 0 \)\\
+            }
+        }
+        
+        \( soma \leftarrow \sum_{i=1}^{m} reward[\alpha_i] \)\\
+        
+        \If{\( soma > 0 \)}{
+            \For{\( i \leftarrow 1 \) \KwTo \( m \)}{
+                \( prob[\alpha_i] \leftarrow \frac{reward[\alpha_i]}{soma} \)\\
+            }
+        }
+        \Else{
+            \( prob[\alpha_i] \leftarrow \frac{1}{m} \) para todo \( i \)\\
+        }
+    }
+    
+    \tcp{Seleção de  $\alpha$ baseado nas probabilidades}
+    \( \alpha_{escolhido} \leftarrow \text{SelecionarAlpha}(A, prob) \)\\
+    
+    \tcp{Construir solução com $\alpha_{escolhido}$}
+    \( c \leftarrow \text{ConstruçãoGulosRandomizada}(G, p, q, \alpha_{escolhido}) \)\\
+    \( span \leftarrow \max_{v \in V} c(v) \)\\
+    
+    \tcp{Atualização de recompensas proporcionalmente ao span}
+    \( recompensa[\alpha_{escolhido}] \leftarrow recompensa[\alpha_{escolhido}] + \frac{1}{span} \)\\
+    \( uso[\alpha_{escolhido}] \leftarrow uso[\alpha_{escolhido}] + 1 \)\\
+    
+    \tcp{Atualização da melhor solução até então}
+    \If{\( span < span^* \)}{
+        \( c^* \leftarrow c \)\\
+        \( span^* \leftarrow span \)\\
+        \( \alpha^* \leftarrow \alpha_{escolhido} \)\\
+    }
+}
+
+\Return{\( c^* \)}
+
+\vspace{0.5cm}
+
+\SetKwProg{Fn}{Function}{:}{}
+\Fn{\text{SelecionarAlpha}\( (A, prob) \)}{
+    \( r \leftarrow \text{random}([0,1]) \)\\
+    \( acumulado \leftarrow 0 \)\\
+    
+    \For{\( i \leftarrow 1 \) \KwTo \( m \)}{
+        \( acumulado \leftarrow acumulado + prob[\alpha_i] \)\\
+        \If{\( r \leq acumulado \)}{
+            \Return{\( \alpha_i \)}
+        }
+    }
+    
+    \Return{\( \alpha_m \)}
+}
+\end{algorithm}
 
 \begin{figure}[ht]
 \centering
