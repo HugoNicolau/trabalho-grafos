@@ -36,7 +36,7 @@ void ResultLogger::writeHeader()
     }
 
     file << "data_hora,instancia,p,q,algoritmo,alpha,iteracoes,tamanho_bloco,"
-         << "semente,tempo_execucao_s,melhor_solucao" << std::endl;
+         << "semente,tempo_execucao_s,melhor_solucao,melhor_alpha,media_solucoes" << std::endl;
 
     file.close();
     headerWritten = true;
@@ -60,7 +60,9 @@ bool ResultLogger::logResult(const std::string &instance,
                              int blockSize,
                              unsigned int seed,
                              double executionTime,
-                             int bestSolution)
+                             int bestSolution,
+                             double bestAlpha,
+                             double averageSolution)
 {
     std::ofstream file(filename, std::ios::app);
     if (!file.is_open())
@@ -77,13 +79,37 @@ bool ResultLogger::logResult(const std::string &instance,
          << instance << ","
          << p << ","
          << q << ","
-         << algorithm << ","
-         << alpha << ","
-         << iterations << ","
-         << blockSize << ","
-         << seed << ","
+         << algorithm << ",";
+
+    // Alpha: relevante apenas para GRASP (não reativo)
+    if (algorithm == "grasp")
+        file << alpha;
+    file << ",";
+
+    // Iterações: relevante para GRASP e Reativo
+    if (algorithm == "grasp" || algorithm == "reactive")
+        file << iterations;
+    file << ",";
+
+    // Tamanho do bloco: relevante apenas para Reativo
+    if (algorithm == "reactive")
+        file << blockSize;
+    file << ",";
+
+    file << seed << ","
          << executionTime << ","
-         << bestSolution << std::endl;
+         << bestSolution << ",";
+
+    // Melhor alpha: relevante apenas para Reativo
+    if (algorithm == "reactive" && bestAlpha >= 0)
+        file << bestAlpha;
+    file << ",";
+
+    // Média das soluções: relevante para GRASP e Reativo
+    if ((algorithm == "grasp" || algorithm == "reactive") && averageSolution >= 0)
+        file << std::setprecision(2) << averageSolution;
+
+    file << std::endl;
 
     file.close();
 

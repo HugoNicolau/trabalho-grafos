@@ -54,6 +54,12 @@ test: all
 	./$(TARGET) -i instances/dimacs/dsjc125.1.col -p 2 -q 1
 	@echo "Testes concluídos!"
 
+# Executar experimentos completos
+experiments: all
+	@echo "Executando experimentos..."
+	./run_experiments.sh
+	@echo "Experimentos concluídos!"
+
 # Mostrar ajuda
 help:
 	./$(TARGET) --help
@@ -65,4 +71,4 @@ $(OBJ_DIR)/InputReader.o: $(SRC_DIR)/InputReader.cpp $(INC_DIR)/InputReader.h $(
 $(OBJ_DIR)/OutputWriter.o: $(SRC_DIR)/OutputWriter.cpp $(INC_DIR)/OutputWriter.h $(INC_DIR)/Graph.h
 $(OBJ_DIR)/ResultLogger.o: $(SRC_DIR)/ResultLogger.cpp $(INC_DIR)/ResultLogger.h
 
-.PHONY: all directories clean distclean run test help
+.PHONY: all directories clean distclean run test experiments help

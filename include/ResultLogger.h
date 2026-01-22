@@ -40,6 +40,8 @@ public:
      * @param seed Semente de randomização
      * @param executionTime Tempo de execução em segundos
      * @param bestSolution Valor da melhor solução (maior cor)
+     * @param bestAlpha Alpha que forneceu melhor solução (para reativo)
+     * @param averageSolution Média das soluções nas iterações
      * @return true se o registro foi bem-sucedido, false caso contrário
      */
     bool logResult(const std::string &instance,
@@ -50,7 +52,9 @@ public:
                    int blockSize,
                    unsigned int seed,
                    double executionTime,
-                   int bestSolution);
+                   int bestSolution,
+                   double bestAlpha = -1.0,
+                   double averageSolution = -1.0);
 
     /**
      * @brief Obtém timestamp atual formatado

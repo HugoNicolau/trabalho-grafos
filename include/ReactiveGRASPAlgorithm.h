@@ -15,6 +15,7 @@ public:
 
     std::vector<int> solve();
     double getBestAlphaUsed() const { return bestAlphaUsed; }
+    double getAverageSolution() const { return averageSolution; }
 
 private:
     const Graph &graph;
@@ -30,6 +31,7 @@ private:
 
     double bestAlphaUsed;
     int bestMaxColor;
+    double averageSolution;
 
     std::vector<int> constructGreedyRandomized(double alpha);
     int findSmallestValidColor(int v, const std::vector<int> &coloring);

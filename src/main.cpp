@@ -10,6 +10,7 @@
 #include <chrono>
 #include <ctime>
 #include <cstdlib>
+#include <unistd.h>
 
 /**
  * @brief Gera e imprime a semente de randomização
@@ -27,7 +28,11 @@ unsigned int initializeRandomSeed(unsigned int customSeed = 0)
     }
     else
     {
-        seed = static_cast<unsigned int>(std::time(nullptr));
+        // Gera semente baseada em tempo com alta precisão (microssegundos) + PID
+        auto now = std::chrono::high_resolution_clock::now();
+        auto duration = now.time_since_epoch();
+        auto micros = std::chrono::duration_cast<std::chrono::microseconds>(duration).count();
+        seed = static_cast<unsigned int>(micros ^ getpid());
         std::cout << "Semente gerada (timestamp): " << seed << std::endl;
     }
 
@@ -184,6 +189,8 @@ int main(int argc, char *argv[])
     auto startTime = std::chrono::high_resolution_clock::now();
 
     std::vector<int> coloring;
+    double bestAlphaUsed = -1.0;
+    double averageSolution = -1.0;
 
     if (algorithm == Config::ALGORITHM_GREEDY)
     {
@@ -196,6 +203,7 @@ int main(int argc, char *argv[])
         std::cout << "[INFO] Executando GRASP (alpha=" << alpha << ", iter=" << iterations << ")..." << std::endl;
         GRASPAlgorithm grasp(graph, p, q, alpha, iterations);
         coloring = grasp.solve();
+        averageSolution = grasp.getAverageSolution();
     }
     else if (algorithm == Config::ALGORITHM_REACTIVE)
     {
@@ -209,11 +217,12 @@ int main(int argc, char *argv[])
         std::cout << ", bloco=" << blockSize << ", iter=" << iterations << ")..." << std::endl;
 
         ReactiveGRASPAlgorithm reactive(graph, p, q,
-                                         Config::DEFAULT_REACTIVE_ALPHAS,
-                                         blockSize,
-                                         iterations);
+                                        Config::DEFAULT_REACTIVE_ALPHAS,
+                                        blockSize,
+                                        iterations);
         coloring = reactive.solve();
-        alpha = reactive.getBestAlphaUsed();
+        bestAlphaUsed = reactive.getBestAlphaUsed();
+        averageSolution = reactive.getAverageSolution();
     }
     else
     {
@@ -232,6 +241,14 @@ int main(int argc, char *argv[])
 
     std::cout << "Tempo de execução: " << elapsed.count() << " segundos" << std::endl;
     std::cout << "Maior cor utilizada: " << maxColor << std::endl;
+    if (averageSolution >= 0)
+    {
+        std::cout << "Média das soluções: " << averageSolution << std::endl;
+    }
+    if (bestAlphaUsed >= 0)
+    {
+        std::cout << "Melhor alpha usado: " << bestAlphaUsed << std::endl;
+    }
 
     std::cout << "\nValidando solução..." << std::endl;
     OutputWriter::validateColoring(graph, coloring, p, q);
@@ -255,16 +272,36 @@ int main(int argc, char *argv[])
     }
 
     ResultLogger logger(Config::DEFAULT_CSV_FILE);
+    double logAlpha = -1.0;
+    int logIterations = 0;
+    int logBlockSize = 0;
+    int logBestAlpha = -1.0;
+    int logAverageSolution = -1.0;
+    if (algorithm == Config::ALGORITHM_GRASP)
+    {
+        logAlpha = alpha;
+        logIterations = iterations;
+        logAverageSolution = averageSolution;
+    }
+    else if (algorithm == Config::ALGORITHM_REACTIVE)
+    {
+        logIterations = iterations;
+        logBlockSize = blockSize;
+        logAverageSolution = averageSolution;
+        logBestAlpha = bestAlphaUsed;
+    }
     logger.logResult(
         inputFile,
         algorithm,
         p, q,
-        alpha,
-        iterations,
-        blockSize,
+        logAlpha,
+        logIterations,
+        logBlockSize,
         seed,
         elapsed.count(),
-        maxColor);
+        maxColor,
+        logBestAlpha,
+        logAverageSolution);
 
     std::cout << "\n========================================" << std::endl;
     std::cout << "   Execução concluída com sucesso!" << std::endl;

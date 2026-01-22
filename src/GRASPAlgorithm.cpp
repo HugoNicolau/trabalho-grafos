@@ -4,7 +4,7 @@
 #include <climits>
 
 GRASPAlgorithm::GRASPAlgorithm(const Graph &g, int p, int q, double alpha, int iterations)
-    : graph(g), p_param(p), q_param(q), alpha(alpha), iterations(iterations < 30 ? 30 : iterations)
+    : graph(g), p_param(p), q_param(q), alpha(alpha), iterations(iterations < 30 ? 30 : iterations), averageSolution(0.0)
 {
 }
 
@@ -115,6 +115,7 @@ std::vector<int> GRASPAlgorithm::solve()
 {
     std::vector<int> bestColoring;
     int bestMaxColor = INT_MAX;
+    double sumSolutions = 0.0;
 
     for (int iter = 0; iter < iterations; ++iter)
     {
@@ -127,6 +128,8 @@ std::vector<int> GRASPAlgorithm::solve()
             maxColor = std::max(maxColor, c);
         }
 
+        sumSolutions += maxColor;
+
         // Atualizar melhor solução se encontrou uma melhor
         if (maxColor < bestMaxColor)
         {
@@ -134,6 +137,8 @@ std::vector<int> GRASPAlgorithm::solve()
             bestColoring = coloring;
         }
     }
+
+    averageSolution = sumSolutions / static_cast<double>(iterations);
 
     return bestColoring;
 }

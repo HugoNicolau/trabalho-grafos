@@ -21,7 +21,8 @@ ReactiveGRASPAlgorithm::ReactiveGRASPAlgorithm(const Graph &g,
       alphaRewardSum(alphaValues.size(), 0.0),
       alphaUsageCount(alphaValues.size(), 0),
       bestAlphaUsed(alphaValues.front()),
-      bestMaxColor(INT_MAX)
+      bestMaxColor(INT_MAX),
+      averageSolution(0.0)
 {
     double initialProb = 1.0 / static_cast<double>(alphaValues.size());
     std::fill(alphaProbabilities.begin(), alphaProbabilities.end(), initialProb);
@@ -161,6 +162,7 @@ int ReactiveGRASPAlgorithm::selectAlphaIndex()
 std::vector<int> ReactiveGRASPAlgorithm::solve()
 {
     std::vector<int> bestColoring;
+    double sumSolutions = 0.0;
 
     for (int iter = 0; iter < totalIterations; ++iter)
     {
@@ -180,6 +182,8 @@ std::vector<int> ReactiveGRASPAlgorithm::solve()
             maxColor = std::max(maxColor, c);
         }
 
+        sumSolutions += maxColor;
+
         alphaRewardSum[alphaIndex] += 1.0 / static_cast<double>(std::max(1, maxColor));
         alphaUsageCount[alphaIndex] += 1;
 
@@ -190,6 +194,8 @@ std::vector<int> ReactiveGRASPAlgorithm::solve()
             bestAlphaUsed = alpha;
         }
     }
+
+    averageSolution = sumSolutions / static_cast<double>(totalIterations);
 
     return bestColoring;
 }
