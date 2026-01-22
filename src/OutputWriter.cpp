@@ -55,20 +55,8 @@ std::string OutputWriter::generateGraphVisualization(const Graph &graph,
 
     int n = graph.getNumVertices();
 
-    // Adicionar vértices com suas cores
-    for (int i = 0; i < n; i++)
-    {
-        oss << i;
-        if (i < (int)coloring.size())
-        {
-            oss << "[" << coloring[i] << "]";
-        }
-        oss << "\n";
-    }
-
-    oss << "\n";
-
-    // Adicionar arestas (evitar duplicatas em grafos não direcionados)
+    // Adicionar arestas com nomes dos vértices incluindo a cor
+    // Formato: v0(cor0) v1(cor1) - o nome do nó já mostra a cor
     std::set<std::pair<int, int>> addedEdges;
 
     for (int u = 0; u < n; u++)
@@ -78,7 +66,6 @@ std::string OutputWriter::generateGraphVisualization(const Graph &graph,
         {
             if (!graph.isDirected())
             {
-                // Para grafos não direcionados, adicionar apenas uma vez
                 int minV = std::min(u, v);
                 int maxV = std::max(u, v);
                 if (addedEdges.find({minV, maxV}) != addedEdges.end())
@@ -87,7 +74,11 @@ std::string OutputWriter::generateGraphVisualization(const Graph &graph,
                 }
                 addedEdges.insert({minV, maxV});
             }
-            oss << u << " " << v << "\n";
+            
+            // Nome do nó inclui vértice e cor: v0(5)
+            std::string uName = std::to_string(u) + "(" + std::to_string(coloring[u]) + ")";
+            std::string vName = std::to_string(v) + "(" + std::to_string(coloring[v]) + ")";
+            oss << uName << " " << vName << "\n";
         }
     }
 
@@ -106,9 +97,6 @@ bool OutputWriter::writeGraphVisualization(const std::string &filename,
     }
 
     std::string visualization = generateGraphVisualization(graph, coloring);
-    file << "# Formato para http://csacademy.com/app/grapheditor/" << std::endl;
-    file << "# Vértices estão rotulados com suas cores [cor]" << std::endl;
-    file << std::endl;
     file << visualization;
 
     file.close();
